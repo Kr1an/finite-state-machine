@@ -28,7 +28,6 @@ class FSM {
     changeState(state) {
         if(this.states[state] == undefined)
             throw new Error();
-        this.stack.pop();
         this.stack.push(state);
     }
 
@@ -86,6 +85,7 @@ class FSM {
             return false;
         else
             this.stack.pop();
+            return true;
     }
 
     /**
@@ -93,7 +93,10 @@ class FSM {
      * Returns false if redo is not available.
      * @returns {Boolean}
      */
-    redo() {}
+    redo() {
+        if(this.stack.length <= 1)
+            return false;
+    }
 
     /**
      * Clears transition history
