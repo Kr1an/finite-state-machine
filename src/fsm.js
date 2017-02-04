@@ -11,6 +11,8 @@ class FSM {
         this.stack = [];
         this.stack.push(config.initial);
         this.initial = config.initial;
+        this.deleted = [];
+        this.is_initial = true;
     }
 
     /**
@@ -29,6 +31,8 @@ class FSM {
         if(this.states[state] == undefined)
             throw new Error();
         this.stack.push(state);
+        this.is_initial = false;
+        this.deleted = [];
     }
 
     /**
@@ -41,13 +45,18 @@ class FSM {
         if(new_state == undefined)
             throw new Error();
         this.stack.push(new_state);
+        this.is_initial = false;
+        this.deleted = [];
     }
 
     /**
      * Resets FSM state to initial.
      */
     reset() {
+        this.stack = []
         this.stack.push(this.initial);
+        this.is_initial = true;
+        this.deleted = [];
     }
 
     /**
@@ -81,11 +90,13 @@ class FSM {
      * @returns {Boolean}
      */
     undo() {
-        if(this.stack.length <= 1)
+        if(this.is_initial || this.stack.length<=1)
             return false;
-        else
+        else{
+            this.deleted.push(this.stack[this.stack.length-1]);
             this.stack.pop();
             return true;
+        }
     }
 
     /**
@@ -94,14 +105,25 @@ class FSM {
      * @returns {Boolean}
      */
     redo() {
-        if(this.stack.length <= 1)
+        if(this.deleted==false)
             return false;
+        else {
+            this.stack.push(this.deleted[this.deleted.length-1])
+            this.deleted.pop();
+            return true;
+        }
     }
 
     /**
      * Clears transition history
      */
-    clearHistory() {}
+    clearHistory() {
+        var tmp_state = this.stack[this.stack.length-1];
+        this.stack = [];
+        this.deleted = [];
+        this.stack.push(tmp_state);
+        this.is_initial = true;
+    }
 }
 
 module.exports = FSM;
